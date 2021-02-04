@@ -4,7 +4,6 @@ import "./Math.sol";
 import "./Ownable.sol";
 import "./IERC20.sol";
 
-
 contract MerkleDropStorage is Ownable{
     
     using Math for uint256;
@@ -24,12 +23,10 @@ contract MerkleDropStorage is Ownable{
     address[] airdropTokenAddresses;
     
     event AirDropSubmitted(
-        
         address indexed _airDroper,
         uint256 indexed _airdropdate,
         uint256 indexed _airdropExpirationDate
-    );
-   
+    ); 
 }
 
 contract MerkleDrop is Ownable,MerkleDropStorage{
@@ -81,7 +78,6 @@ contract MerkleDrop is Ownable,MerkleDropStorage{
                tokenAddress[i] = (airdropTokenAddresses[i]) ;
         }
         return(tokenAddress,tokenAmount);
-      
      }
      
      function getUserTokenCount(address _walletAddress)internal view returns(uint256){
@@ -94,7 +90,7 @@ contract MerkleDrop is Ownable,MerkleDropStorage{
                     {
                         ++count;
                     }
-                  }
+               }
          }
          return(count);
      }
@@ -113,6 +109,5 @@ contract MerkleDrop is Ownable,MerkleDropStorage{
         for(uint256 i = 0;i<_tokenAddress.length;i++){
             IERC20(_tokenAddress[i]).transferFrom(address(this),_user,_amountOfTokens[i]);
         }
-       
-    }
+     }
 }
