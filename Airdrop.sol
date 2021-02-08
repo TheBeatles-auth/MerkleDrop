@@ -29,7 +29,7 @@ contract MerkleDropStorage is Ownable{
     ); 
 }
 
-contract MerkleDrop is Ownable,MerkleDropStorage{
+contract Airdrop is Ownable,MerkleDropStorage{
   
     function airdropTokens(address _tokenAddress, address[] memory _walletAddress,uint256[] memory _amountOfTokens,uint256 _airdropExpiration)external {
         
