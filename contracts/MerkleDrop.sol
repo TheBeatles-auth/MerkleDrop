@@ -67,7 +67,7 @@ abstract contract MerkleDropStorage {
     //Mapping
     mapping(address => MerkleAirDrop) internal airdroppedtokens;
     mapping(address => mapping(uint256 => bool)) internal claimedMap;
-    mapping(bytes32 => address) public vaultAddress;
+    mapping(bytes32 => address) internal vaultAddress;
     
 }
 
