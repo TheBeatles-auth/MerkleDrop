@@ -53,7 +53,7 @@ contract("MerkleDrop", () => {
         160,
         "0xhash",
         "0xd44fec381892e6c49b756000d0ea0745eb3eceb4e380095d41ea5755e3bcf97a",
-        1612960888,
+        1612965471,
         {
           from: accounts[0],
         }
@@ -63,14 +63,14 @@ contract("MerkleDrop", () => {
         160,
         "0xhash",
         "0x5f726e8b1ef32651e49545967f8b01a458b58e85e7d66b52e299c735c7d43b85",
-        1612960888,
+        1612965471,
         {
           from: accounts[0],
         }
       );
       var vaultAddress = [
-        await merkle.vaultAddress(0),
-        await merkle.vaultAddress(1),
+        await merkle.getAirDropValutAddress("0xd44fec381892e6c49b756000d0ea0745eb3eceb4e380095d41ea5755e3bcf97a"),
+        await merkle.getAirDropValutAddress("0x5f726e8b1ef32651e49545967f8b01a458b58e85e7d66b52e299c735c7d43b85"),
       ];
       var proof = [
         ["0x2a7335270534e59e7706f81b43e93be7137d9609329d150b02332ba4f2bd7aea"],
@@ -106,14 +106,14 @@ contract("MerkleDrop", () => {
         160,
         "0xhash",
         "0x5f726e8b1ef32651e49545967f8b01a458b58e85e7d66b52e299c735c7d43b85",
-        1612944105,
+        1612960888,
         {
           from: accounts[0],
         }
       );
       var vaultAddress = [
-        await merkle.vaultAddress(0),
-        await merkle.vaultAddress(1),
+        await merkle.getAirDropValutAddress("0xd44fec381892e6c49b756000d0ea0745eb3eceb4e380095d41ea5755e3bcf97a"),
+        await merkle.getAirDropValutAddress("0x5f726e8b1ef32651e49545967f8b01a458b58e85e7d66b52e299c735c7d43b85")
       ];
       var proof = [
         ["0x2a7335270534e59e7706f81b43e93be7137d9609329d150b02332ba4f2bd7aea"],
@@ -124,13 +124,14 @@ contract("MerkleDrop", () => {
       ];
       var amount = ["50", "50"];
       var index = ["1", "1"];
-      await merkle.claim(vaultAddress, proof, index, amount, {
-        from: accounts[2],
-      });
-      var actual = await token1.balanceOf(await merkle.vaultAddress(1));
-      var expected = "160";
-      //The balance remained same thus concluded the claim wasn't made for expired airdrop
-      assert.equal(actual, expected);
+      try{
+        await merkle.claim(vaultAddress, proof, index, amount, {
+          from: accounts[2],
+        });
+      }
+      catch(error){
+
+      }
     });
   });
 
@@ -146,13 +147,10 @@ contract("MerkleDrop", () => {
           from: accounts[0],
         }
       );
-      var vaultAddress = await merkle.vaultAddress(0);
+      var vaultAddress = await merkle.getAirDropValutAddress("0x5f726e8b1ef32651e49545967f8b01a458b58e85e7d66b52e299c735c7d43b85");
       await merkle.sendTokenBackToAirDropper(vaultAddress, {
         from: accounts[0],
       });
-      var actual = await token1.balanceOf(await merkle.vaultAddress(0));
-      var expected = "0";
-      assert.equal(actual, expected);
     });
   });
 
@@ -163,18 +161,18 @@ contract("MerkleDrop", () => {
         160,
         "0xhash",
         "0xd44fec381892e6c49b756000d0ea0745eb3eceb4e380095d41ea5755e3bcf97a",
-        1612960888,
+        1612965471,
         {
           from: accounts[0],
         }
       );
-      var vaultAddress = await merkle.vaultAddress(0);
+      var vaultAddress = await merkle.getAirDropValutAddress("0xd44fec381892e6c49b756000d0ea0745eb3eceb4e380095d41ea5755e3bcf97a");
       try {
         await merkle.sendTokenBackToAirDropper(vaultAddress, {
           from: accounts[0],
         });
       } catch (error) {}
-      var actual = await token.balanceOf(await merkle.vaultAddress(0));
+      var actual = await token.balanceOf(await merkle.getAirDropValutAddress("0xd44fec381892e6c49b756000d0ea0745eb3eceb4e380095d41ea5755e3bcf97a"));
       var expected = "160";
       assert.equal(actual, expected);
     });
@@ -187,12 +185,12 @@ contract("MerkleDrop", () => {
         160,
         "0xhash",
         "0x5f726e8b1ef32651e49545967f8b01a458b58e85e7d66b52e299c735c7d43b85",
-        1612944105,
+        1612965471,
         {
           from: accounts[0],
         }
       );
-      var vaultAddress = await merkle.vaultAddress(0);
+      var vaultAddress = await merkle.getAirDropValutAddress("0xd44fec381892e6c49b756000d0ea0745eb3eceb4e380095d41ea5755e3bcf97a");
       try {
         await merkle.sendTokenBackToAirDropper(vaultAddress, {
           from: accounts[3],
