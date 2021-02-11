@@ -53,7 +53,7 @@ contract("MerkleDrop", () => {
         160,
         "0xhash",
         "0xd44fec381892e6c49b756000d0ea0745eb3eceb4e380095d41ea5755e3bcf97a",
-        1612965471,
+        1614297578,
         {
           from: accounts[0],
         }
@@ -63,7 +63,7 @@ contract("MerkleDrop", () => {
         160,
         "0xhash",
         "0x5f726e8b1ef32651e49545967f8b01a458b58e85e7d66b52e299c735c7d43b85",
-        1612965471,
+        1614297578,
         {
           from: accounts[0],
         }
@@ -161,7 +161,7 @@ contract("MerkleDrop", () => {
         160,
         "0xhash",
         "0xd44fec381892e6c49b756000d0ea0745eb3eceb4e380095d41ea5755e3bcf97a",
-        1612965471,
+        1614297578,
         {
           from: accounts[0],
         }
