@@ -1,6 +1,5 @@
 pragma solidity  ^0.6.0;
 
-
 import "./IERC20.sol";
 import "./Math.sol";
 
@@ -8,7 +7,6 @@ contract Lock is IERC20
 {
     using Math for uint256;
     
-     
     function tokenname() public view returns (string memory) {
         return name;
     }
@@ -38,12 +36,9 @@ contract Lock is IERC20
             balances[_from]= balances[_from].sub(_token);
             balances[__to] =  balances[__to].add(_token);
             allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_token);
-            
             emit Transfer(_from,__to,_token);
             return true;
-            
-       
-    }
+     }
     
     function balanceOf(address _Owner) public override view returns (uint256 balance) {
         return balances[_Owner];
