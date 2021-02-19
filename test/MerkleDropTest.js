@@ -10,67 +10,106 @@ const { assert, expect } = require("chai");
 const MerkleDrop = artifacts.require("MerkleDrop");
 const TokenBasic = artifacts.require("Tokenbasic");
 const TokenBasic1 = artifacts.require("Tokenbasic");
+const Lock = artifacts.require("Lock");
 
 require("chai").use(require("chai-bignumber")(BN)).should();
+
+const denominator = new BN(10).pow(new BN(16));
+
+const getWith16Decimals = function (amount) {
+  return new BN(amount).mul(denominator);
+};
 
 contract("MerkleDrop", () => {
   it("Should deploy smart contract properly", async () => {
     const token = await TokenBasic.deployed();
     const token1 = await TokenBasic1.deployed();
-    const merkle = await MerkleDrop.deployed();
+    const lock = await Lock.deployed();
+    const merkle = await MerkleDrop.deployed(
+      lock.address,
+      getWith16Decimals(5),
+      getWith16Decimals(5),
+      "0x31de0c08f72fe94aadfa9adbfabb5b23238b9ce1"
+    );
 
     assert(token.address !== "");
     assert(merkle.address !== "");
   });
   beforeEach(async function () {
-    merkle = await MerkleDrop.new();
     token = await TokenBasic.new();
-    await token.approve(merkle.address, 200);
     token1 = await TokenBasic1.new();
-    await token1.approve(merkle.address, 200);
+    lock = await Lock.new();
     accounts = await web3.eth.getAccounts();
+    merkle = await MerkleDrop.new(
+      lock.address,
+      getWith16Decimals(5),
+      getWith16Decimals(5),
+      accounts[9]
+    );
+    await token.approve(merkle.address, getWith16Decimals(10));
+    await token1.approve(merkle.address, getWith16Decimals(10));
+    await lock.approve(merkle.address, getWith16Decimals(10));
   });
 
-  describe("[Testcase 1: To create AirDrop]", () => {
+  describe("[Testcase 1: To create AirDrop and pay fees in token]", () => {
     it("Create AirDrop", async () => {
       await merkle.createAirDrop(
         token.address,
         160,
         "0xhash",
         "0xd44fec381892e6c49b756000d0ea0745eb3eceb4e380095d41ea5755e3bcf97a",
-        1612960888,
+        1616068615,
+        "true"
+      );
+    });
+  });
+
+  describe("[Testcase 2: To create AirDrop and pay fees in eth]", () => {
+    it("Create AirDrop", async () => {
+      await merkle.createAirDrop(
+        token1.address,
+        160,
+        "0xhash",
+        "0x5f726e8b1ef32651e49545967f8b01a458b58e85e7d66b52e299c735c7d43b85",
+        1616068615,
+        "false",
         {
-          from: accounts[0],
+          value: getWith16Decimals(5),
         }
       );
     });
   });
 
-  describe("[Testcase 2: To claim air drop tokens]", () => {
+  describe("[Testcase 3: To claim air drop tokens]", () => {
     it("Claim AirDrop", async () => {
       await merkle.createAirDrop(
         token.address,
         160,
         "0xhash",
         "0xd44fec381892e6c49b756000d0ea0745eb3eceb4e380095d41ea5755e3bcf97a",
-        1614297578,
+        1631966215,
+        "false",
         {
-          from: accounts[0],
+          value: getWith16Decimals(5),
         }
       );
+
       await merkle.createAirDrop(
         token1.address,
         160,
         "0xhash",
         "0x5f726e8b1ef32651e49545967f8b01a458b58e85e7d66b52e299c735c7d43b85",
-        1614297578,
-        {
-          from: accounts[0],
-        }
+        1631966215,
+        "true"
       );
+
       var vaultAddress = [
-        await merkle.getAirDropValutAddress("0xd44fec381892e6c49b756000d0ea0745eb3eceb4e380095d41ea5755e3bcf97a"),
-        await merkle.getAirDropValutAddress("0x5f726e8b1ef32651e49545967f8b01a458b58e85e7d66b52e299c735c7d43b85"),
+        await merkle.getAirDropValutAddress(
+          "0xd44fec381892e6c49b756000d0ea0745eb3eceb4e380095d41ea5755e3bcf97a"
+        ),
+        await merkle.getAirDropValutAddress(
+          "0x5f726e8b1ef32651e49545967f8b01a458b58e85e7d66b52e299c735c7d43b85"
+        ),
       ];
       var proof = [
         ["0x2a7335270534e59e7706f81b43e93be7137d9609329d150b02332ba4f2bd7aea"],
@@ -89,31 +128,36 @@ contract("MerkleDrop", () => {
     });
   });
 
-  describe("[Testcase 3: To try to claim expired airDrop tokens]", () => {
+  describe("[Testcase 4: To try to claim expired airDrop tokens]", () => {
     it("Claim AirDrop", async () => {
       await merkle.createAirDrop(
         token.address,
         160,
         "0xhash",
         "0xd44fec381892e6c49b756000d0ea0745eb3eceb4e380095d41ea5755e3bcf97a",
-        1612960888,
+        1616068615,
+        "false",
         {
-          from: accounts[0],
+          value: getWith16Decimals(5),
         }
       );
+
       await merkle.createAirDrop(
         token1.address,
         160,
         "0xhash",
         "0x5f726e8b1ef32651e49545967f8b01a458b58e85e7d66b52e299c735c7d43b85",
-        1612960888,
-        {
-          from: accounts[0],
-        }
+        1613650585,
+        "true"
       );
+
       var vaultAddress = [
-        await merkle.getAirDropValutAddress("0xd44fec381892e6c49b756000d0ea0745eb3eceb4e380095d41ea5755e3bcf97a"),
-        await merkle.getAirDropValutAddress("0x5f726e8b1ef32651e49545967f8b01a458b58e85e7d66b52e299c735c7d43b85")
+        await merkle.getAirDropValutAddress(
+          "0xd44fec381892e6c49b756000d0ea0745eb3eceb4e380095d41ea5755e3bcf97a"
+        ),
+        await merkle.getAirDropValutAddress(
+          "0x5f726e8b1ef32651e49545967f8b01a458b58e85e7d66b52e299c735c7d43b85"
+        ),
       ];
       var proof = [
         ["0x2a7335270534e59e7706f81b43e93be7137d9609329d150b02332ba4f2bd7aea"],
@@ -124,73 +168,82 @@ contract("MerkleDrop", () => {
       ];
       var amount = ["50", "50"];
       var index = ["1", "1"];
-      try{
+      try {
         await merkle.claim(vaultAddress, proof, index, amount, {
           from: accounts[2],
         });
-      }
-      catch(error){
-
-      }
+      } catch (error) {}
     });
   });
 
-  describe("[Testcase 4: To send back expired airDrops to the AirDropper]", () => {
+  describe("[Testcase 5: To send back expired airDrops to the AirDropper]", () => {
     it("Send token to AirDropper", async () => {
       await merkle.createAirDrop(
         token1.address,
         160,
         "0xhash",
-        "0x5f726e8b1ef32651e49545967f8b01a458b58e85e7d66b52e299c735c7d43b85",
+        "0x1344f60b7c027761ab12f07f61c04297b298fb90743cc0b0f9a598bf5b4fdf68",
         1612944105,
+        "false",
         {
           from: accounts[0],
+          value: getWith16Decimals(5),
         }
       );
-      var vaultAddress = await merkle.getAirDropValutAddress("0x5f726e8b1ef32651e49545967f8b01a458b58e85e7d66b52e299c735c7d43b85");
+      var vaultAddress = await merkle.getAirDropValutAddress(
+        "0x1344f60b7c027761ab12f07f61c04297b298fb90743cc0b0f9a598bf5b4fdf68"
+      );
       await merkle.sendTokenBackToAirDropper(vaultAddress, {
         from: accounts[0],
       });
     });
   });
 
-  describe("[Testcase 5: To send back non-expired airDrops to the AirDropperr]", () => {
-    it("Send token to AirDropper", async () => {
-      await merkle.createAirDrop(
-        token.address,
-        160,
-        "0xhash",
-        "0xd44fec381892e6c49b756000d0ea0745eb3eceb4e380095d41ea5755e3bcf97a",
-        1614297578,
-        {
-          from: accounts[0],
-        }
-      );
-      var vaultAddress = await merkle.getAirDropValutAddress("0xd44fec381892e6c49b756000d0ea0745eb3eceb4e380095d41ea5755e3bcf97a");
-      try {
-        await merkle.sendTokenBackToAirDropper(vaultAddress, {
-          from: accounts[0],
-        });
-      } catch (error) {}
-      var actual = await token.balanceOf(await merkle.getAirDropValutAddress("0xd44fec381892e6c49b756000d0ea0745eb3eceb4e380095d41ea5755e3bcf97a"));
-      var expected = "160";
-      assert.equal(actual, expected);
-    });
-  });
-
-  describe("[Testcase 6: To try to send back airDrops who is not the AirDropper]", () => {
+  describe("[Testcase 6: To send back non-expired airDrops to the AirDropperr]", () => {
     it("Send token to AirDropper", async () => {
       await merkle.createAirDrop(
         token1.address,
         160,
         "0xhash",
         "0x5f726e8b1ef32651e49545967f8b01a458b58e85e7d66b52e299c735c7d43b85",
-        1612965471,
+        1631966215,
+        "false",
         {
           from: accounts[0],
+          value: getWith16Decimals(5),
         }
       );
-      var vaultAddress = await merkle.getAirDropValutAddress("0xd44fec381892e6c49b756000d0ea0745eb3eceb4e380095d41ea5755e3bcf97a");
+      var vaultAddress = await merkle.getAirDropValutAddress(
+        "0x5f726e8b1ef32651e49545967f8b01a458b58e85e7d66b52e299c735c7d43b85"
+      );
+      try {
+        await merkle.sendTokenBackToAirDropper(vaultAddress, {
+          from: accounts[0],
+        });
+      } catch (error) {}
+      var actual = await token1.balanceOf(vaultAddress);
+      var expected = "160";
+      assert.equal(actual.toString(), expected);
+    });
+  });
+
+  describe("[Testcase 7: To try to send back airDrops who is not the AirDropper]", () => {
+    it("Send token to AirDropper", async () => {
+      await merkle.createAirDrop(
+        token1.address,
+        160,
+        "0xhash",
+        "0x1344f60b7c027761ab12f07f61c04297b298fb90743cc0b0f9a598bf5b4fdf68",
+        1612944105,
+        "false",
+        {
+          from: accounts[0],
+          value: getWith16Decimals(5),
+        }
+      );
+      var vaultAddress = await merkle.getAirDropValutAddress(
+        "0x1344f60b7c027761ab12f07f61c04297b298fb90743cc0b0f9a598bf5b4fdf68"
+      );
       try {
         await merkle.sendTokenBackToAirDropper(vaultAddress, {
           from: accounts[3],
